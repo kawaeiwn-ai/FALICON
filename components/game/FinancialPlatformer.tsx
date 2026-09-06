@@ -158,9 +158,11 @@ export default function FinancialPlatformer() {
 
     function step(timestamp: number) {
       // TypeScript can't carry the `if (!ctx) return;` narrowing from the
-      // outer scope into this nested function, so re-bind a definitely-
-      // non-null reference here rather than sprinkling `!` everywhere below.
+      // outer scope into this nested function, so guard again here on a
+      // freshly-bound reference — copying `ctx` alone doesn't narrow its
+      // type, the explicit check below is what actually does.
       const context = ctx;
+      if (!context) return;
 
       if (lastTimeRef.current === null) lastTimeRef.current = timestamp;
       const rawDelta = (timestamp - lastTimeRef.current) / 1000;
