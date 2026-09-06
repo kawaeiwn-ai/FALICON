@@ -49,3 +49,43 @@ All components are strictly typed (`strict: true`,
 `noUncheckedIndexedAccess: true`), and client/server boundaries are marked
 explicitly with `"use client"` only where interactivity (state, hooks) is
 required — every other route is a server component by default.
+
+## Deploying to Netlify
+
+This is a full Next.js App Router app (server components, dynamic routes),
+not a static export — Netlify needs to know that, or it serves its own
+generic 404 page for every route.
+
+`netlify.toml` is already set up for this:
+
+```toml
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+```
+
+If you're still seeing Netlify's "Page not found" card after deploying:
+
+- **Connect the Git repo** in the Netlify UI (New site → Import an existing
+  project) rather than dragging a pre-built folder into the deploy drop
+  zone — drag-and-drop deploys skip the build step entirely, so
+  `netlify.toml` and the Next.js plugin never run.
+- Check the **deploy log** for the actual build command that ran and
+  confirm it matches `npm run build` with publish directory `.next`.
+- Confirm the **Next.js Runtime plugin** (`@netlify/plugin-nextjs`) shows
+  up as installed in Site settings → Build & deploy → Post processing —
+  Netlify auto-installs it from `netlify.toml`, but older sites created
+  before this file existed may need it added manually from the Netlify
+  plugin directory.
+- Node version: this project needs Node 18.18+ (20 is set via
+  `netlify.toml`'s `NODE_VERSION`). An older pinned Node version on the
+  site can fail the build silently and fall back to a 404.
+
+## Deploying to Vercel
+
+No extra config needed — Vercel detects Next.js automatically. Push the
+repo and import it in the Vercel dashboard, or run `vercel` from this
+directory with the Vercel CLI.
