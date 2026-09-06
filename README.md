@@ -64,33 +64,39 @@ This is a full Next.js App Router app (server components, dynamic routes),
 not a static export — Netlify needs to know that, or it serves its own
 generic 404 page for every route.
 
-`netlify.toml` is already set up for this:
+`netlify.toml` sets the build command and publish directory explicitly:
 
 ```toml
 [build]
   command = "npm run build"
   publish = ".next"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
 ```
+
+**Deliberately not pinning `@netlify/plugin-nextjs`.** Netlify auto-detects
+Next.js 13.5+ and manages the adapter version itself. An earlier version of
+this file pinned an explicit plugin version, which went stale after a
+later Next.js upgrade and crashed the deployed site at runtime with an
+internal `TypeError: object is not iterable` error — the old adapter
+didn't understand the newer Next.js internals. Unless you have a specific
+reason to pin a version, let Netlify manage it.
 
 If you're still seeing Netlify's "Page not found" card after deploying:
 
 - **Connect the Git repo** in the Netlify UI (New site → Import an existing
   project) rather than dragging a pre-built folder into the deploy drop
   zone — drag-and-drop deploys skip the build step entirely, so
-  `netlify.toml` and the Next.js plugin never run.
+  `netlify.toml` never runs.
 - Check the **deploy log** for the actual build command that ran and
   confirm it matches `npm run build` with publish directory `.next`.
-- Confirm the **Next.js Runtime plugin** (`@netlify/plugin-nextjs`) shows
-  up as installed in Site settings → Build & deploy → Post processing —
-  Netlify auto-installs it from `netlify.toml`, but older sites created
-  before this file existed may need it added manually from the Netlify
-  plugin directory.
 - Node version: this project needs Node 18.18+ (20 is set via
   `netlify.toml`'s `NODE_VERSION`). An older pinned Node version on the
   site can fail the build silently and fall back to a 404.
+
+If the site builds and deploys but **crashes at runtime** (a Netlify
+function error page rather than your app), check Site settings → Build &
+deploy for a pinned `@netlify/plugin-nextjs` version left over from an
+earlier deploy, and remove it so Netlify can pick a version that matches
+your current Next.js version.
 
 ## Deploying to Vercel
 

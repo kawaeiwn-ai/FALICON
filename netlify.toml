@@ -2,8 +2,13 @@
   command = "npm run build"
   publish = ".next"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
 [build.environment]
   NODE_VERSION = "20"
+
+# No [[plugins]] block for @netlify/plugin-nextjs on purpose: Netlify
+# auto-detects Next.js 13.5+ and manages the adapter version itself,
+# keeping it in sync with newer OpenNext architecture improvements.
+# Pinning a specific plugin version (as this file used to) means you're
+# responsible for bumping it every time Next.js changes internals — which
+# is exactly what caused a runtime crash after upgrading Next.js here.
+# See "Deploying to Netlify" in README.md before re-adding a pin.
