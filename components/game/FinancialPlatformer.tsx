@@ -157,6 +157,11 @@ export default function FinancialPlatformer() {
     window.addEventListener("keyup", handleKeyUp);
 
     function step(timestamp: number) {
+      // TypeScript can't carry the `if (!ctx) return;` narrowing from the
+      // outer scope into this nested function, so re-bind a definitely-
+      // non-null reference here rather than sprinkling `!` everywhere below.
+      const context = ctx;
+
       if (lastTimeRef.current === null) lastTimeRef.current = timestamp;
       const rawDelta = (timestamp - lastTimeRef.current) / 1000;
       lastTimeRef.current = timestamp;
@@ -233,52 +238,52 @@ export default function FinancialPlatformer() {
       }
 
       // --- draw ---
-      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
-      const grad = ctx.createLinearGradient(0, 0, 0, CANVAS_H);
+      context.clearRect(0, 0, CANVAS_W, CANVAS_H);
+      const grad = context.createLinearGradient(0, 0, 0, CANVAS_H);
       grad.addColorStop(0, "#0B0F17");
       grad.addColorStop(1, "#111827");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      context.fillStyle = grad;
+      context.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
       const camX = cameraXRef.current;
 
-      ctx.fillStyle = "#161E2C";
+      context.fillStyle = "#161E2C";
       for (const platform of platforms) {
-        ctx.fillRect(platform.x - camX, platform.y, platform.w, platform.h);
-        ctx.strokeStyle = "rgba(212,175,55,0.35)";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(platform.x - camX, platform.y, platform.w, platform.h);
+        context.fillRect(platform.x - camX, platform.y, platform.w, platform.h);
+        context.strokeStyle = "rgba(212,175,55,0.35)";
+        context.lineWidth = 1;
+        context.strokeRect(platform.x - camX, platform.y, platform.w, platform.h);
       }
 
       for (const coin of coins) {
         if (coin.collected) continue;
-        ctx.beginPath();
-        ctx.fillStyle = "#D4AF37";
-        ctx.arc(
+        context.beginPath();
+        context.fillStyle = "#D4AF37";
+        context.arc(
           coin.x - camX + coin.w / 2,
           coin.y + coin.h / 2,
           coin.w / 2,
           0,
           Math.PI * 2
         );
-        ctx.fill();
+        context.fill();
       }
 
       for (const chest of chests) {
-        ctx.fillStyle = chest.opened ? "#1F9D6B" : "#D4AF37";
-        ctx.fillRect(chest.x - camX, chest.y, chest.w, chest.h);
-        ctx.fillStyle = "#0B0F17";
-        ctx.font = "10px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(
+        context.fillStyle = chest.opened ? "#1F9D6B" : "#D4AF37";
+        context.fillRect(chest.x - camX, chest.y, chest.w, chest.h);
+        context.fillStyle = "#0B0F17";
+        context.font = "10px sans-serif";
+        context.textAlign = "center";
+        context.fillText(
           chest.opened ? "done" : "?",
           chest.x - camX + chest.w / 2,
           chest.y + chest.h / 2 + 4
         );
       }
 
-      ctx.fillStyle = player.facing === 1 ? "#3FBE8C" : "#D4AF37";
-      ctx.fillRect(player.x - camX, player.y, PLAYER_W, PLAYER_H);
+      context.fillStyle = player.facing === 1 ? "#3FBE8C" : "#D4AF37";
+      context.fillRect(player.x - camX, player.y, PLAYER_W, PLAYER_H);
 
       rafRef.current = requestAnimationFrame(step);
     }
