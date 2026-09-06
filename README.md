@@ -50,6 +50,14 @@ All components are strictly typed (`strict: true`,
 explicitly with `"use client"` only where interactivity (state, hooks) is
 required — every other route is a server component by default.
 
+## Security
+
+`next`, `react`, and `react-dom` are pinned above the versions affected by
+CVE-2025-55182 / CVE-2025-66478 (critical RCE in React Server Components).
+`@react-three/fiber` and `@react-three/drei` were bumped to their v9/v10
+lines to match React 19, since v8/v9-for-react-18 combinations are not
+compatible with React 19's reconciler.
+
 ## Deploying to Netlify
 
 This is a full Next.js App Router app (server components, dynamic routes),
